@@ -29,7 +29,11 @@ export function App() {
     root.classList.toggle("theme-light", effective === "light");
   }, [theme]);
 
-  if (appState === "welcome") return <WelcomeView />;
+  // When Clerk is configured, AuthShell already renders WelcomeView for
+  // signed-out users. We only render the WelcomeView here when Clerk is off
+  // (no publishable key), so the local-dev flow still works.
+  const hasClerk = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+  if (!hasClerk && appState === "welcome") return <WelcomeView />;
   if (appState === "onboarding") return <OnboardingView />;
 
   return (

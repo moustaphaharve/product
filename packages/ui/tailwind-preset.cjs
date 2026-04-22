@@ -42,13 +42,20 @@ module.exports = {
       },
       fontFamily: {
         sans: [
+          "Geist",
           "Inter",
           "-apple-system",
           "system-ui",
           "Segoe UI",
           "sans-serif",
         ],
-        mono: ["JetBrains Mono", "SF Mono", "Menlo", "monospace"],
+        mono: [
+          "Geist Mono",
+          "JetBrains Mono",
+          "SF Mono",
+          "Menlo",
+          "monospace",
+        ],
       },
       fontSize: {
         xs: ["11px", { lineHeight: "16px" }],

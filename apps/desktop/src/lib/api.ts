@@ -19,15 +19,40 @@ interface FetchOptions extends RequestInit {
   json?: unknown;
 }
 
+// Token provider wired up by AuthShell. Returns a Clerk JWT when available,
+// or null when running in "skip for local development" mode.
+let authTokenGetter: (() => Promise<string | null>) | null = null;
+export function registerAuthTokenGetter(fn: () => Promise<string | null>) {
+  authTokenGetter = fn;
+}
+
+async function buildHeaders(
+  extra?: Record<string, string>,
+): Promise<Record<string, string>> {
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+    ...(extra ?? {}),
+  };
+  const clerkId = window.localStorage.getItem("product.clerk.userId");
+  const clerkEmail = window.localStorage.getItem("product.clerk.email");
+  headers["x-user-id"] = clerkId ?? "local-dev-user";
+  if (clerkEmail) headers["x-user-email"] = clerkEmail;
+  if (authTokenGetter) {
+    try {
+      const token = await authTokenGetter();
+      if (token) headers["authorization"] = `Bearer ${token}`;
+    } catch {
+      /* fall back to x-user-id only */
+    }
+  }
+  return headers;
+}
+
 async function call<T>(path: string, opts: FetchOptions = {}): Promise<T> {
   const { json, headers, ...rest } = opts;
   const res = await fetch(`${BASE}/v1${path}`, {
     ...rest,
-    headers: {
-      "content-type": "application/json",
-      "x-user-id": "local-dev-user",
-      ...(headers as Record<string, string> | undefined),
-    },
+    headers: await buildHeaders(headers as Record<string, string> | undefined),
     body: json !== undefined ? JSON.stringify(json) : rest.body,
   });
   if (!res.ok) {
@@ -49,7 +74,7 @@ async function safeCall<T>(
   }
 }
 
-// ————— Local fallback store —————
+//  Local fallback store 
 const LOCAL_KEY = "product.local.projects.v1";
 
 function readLocal(): Record<string, Project> {
@@ -83,7 +108,7 @@ function newId() {
   return `local_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-// ————— Public API —————
+//  Public API 
 
 export async function listProjects(): Promise<ProjectSummary[]> {
   return safeCall<{ projects: ProjectSummary[] }>(
@@ -280,10 +305,7 @@ export async function streamChat(
   try {
     const res = await fetch(`${BASE}/v1/chat`, {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-user-id": "local-dev-user",
-      },
+      headers: await buildHeaders(),
       body: JSON.stringify(args),
     });
     if (!res.ok || !res.body) throw new Error(`stream ${res.status}`);
@@ -331,7 +353,7 @@ async function runClientMockStream(
     await new Promise((r) => setTimeout(r, s.delayMs));
     handlers.onEvent({ type: "step_complete", label: s.label });
   }
-  const summary = `Drafted a build for: "${prompt}". (Client-side mock — connect the API and set ANTHROPIC_API_KEY to run the full pipeline.)`;
+  const summary = `Drafted a build for: "${prompt}". (Client-side mock  connect the API and set ANTHROPIC_API_KEY to run the full pipeline.)`;
   for (const chunk of summary.split(" ")) {
     handlers.onEvent({ type: "delta", text: chunk + " " });
     await new Promise((r) => setTimeout(r, 15));

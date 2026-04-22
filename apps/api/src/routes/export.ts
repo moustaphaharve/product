@@ -27,7 +27,13 @@ export async function exportRoutes(app: FastifyInstance) {
           })
         : [];
 
-      const bom = components.map((c) => {
+      interface BomRow {
+        suppliers: Array<{ priceUsd: number; purchaseUrl: string; name: string }>;
+        name: string;
+        manufacturer: string;
+        category: string;
+      }
+      const bom = (components as unknown as BomRow[]).map((c) => {
         const cheapest = [...c.suppliers].sort(
           (a, b) => a.priceUsd - b.priceUsd,
         )[0];

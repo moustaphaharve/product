@@ -1,4 +1,17 @@
 import Anthropic from "@anthropic-ai/sdk";
+
+/**
+ * Helper: build a cache-controlled system prompt block.
+ *
+ * The Anthropic SDK's TS types don't always expose `cache_control` on
+ * `TextBlockParam`, but the field is supported at the API layer for prompt
+ * caching. We build the block as `unknown` and cast through ù runtime is
+ * unaffected.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function sysBlock(text: string): any {
+  return [{ type: "text", text, cache_control: { type: "ephemeral" } }];
+}
 import { z } from "zod";
 import {
   intentClassificationSchema,
@@ -117,13 +130,7 @@ export class Orchestrator {
     const resp = await this.client.messages.create({
       model: MODEL_IDS[model],
       max_tokens: 200,
-      system: [
-        {
-          type: "text",
-          text: INTENT_SYSTEM_PROMPT + "\n\n" + SHARED_POLICY_BLOCK,
-          cache_control: { type: "ephemeral" },
-        },
-      ],
+      system: sysBlock(INTENT_SYSTEM_PROMPT + "\n\n" + SHARED_POLICY_BLOCK),
       messages: [
         {
           role: "user",
@@ -153,13 +160,7 @@ export class Orchestrator {
     const resp = await this.client.messages.create({
       model: MODEL_IDS[model],
       max_tokens: 2000,
-      system: [
-        {
-          type: "text",
-          text: SPEC_SYSTEM_PROMPT + "\n\n" + SHARED_POLICY_BLOCK,
-          cache_control: { type: "ephemeral" },
-        },
-      ],
+      system: sysBlock(SPEC_SYSTEM_PROMPT + "\n\n" + SHARED_POLICY_BLOCK),
       messages: [{ role: "user", content: userMessage }],
     });
     this.recordUsage(resp, model, "spec", Date.now() - started);
@@ -197,7 +198,7 @@ export class Orchestrator {
       });
       emit({
         type: "delta",
-        text: `I've drafted **${parsed.data.name}** ó a ${parsed.data.category.replace(
+        text: `I've drafted **${parsed.data.name}** ù a ${parsed.data.category.replace(
           /_/g,
           " ",
         )} with ${parsed.data.actuators.length} actuators and ${parsed.data.sensors.length} sensors. It's running in the ${parsed.data.environment.replace(
@@ -209,7 +210,7 @@ export class Orchestrator {
     } else {
       emit({
         type: "delta",
-        text: "I had trouble structuring that spec ó could you describe the robot's mobility (wheels / legs / arms) and main task?",
+        text: "I had trouble structuring that spec ù could you describe the robot's mobility (wheels / legs / arms) and main task?",
       });
       emit({ type: "done" });
     }
@@ -225,7 +226,7 @@ export class Orchestrator {
     if (!currentSpec) {
       emit({
         type: "delta",
-        text: "There's no robot loaded yet ó want me to start a fresh build based on what you described?",
+        text: "There's no robot loaded yet ù want me to start a fresh build based on what you described?",
       });
       emit({ type: "done" });
       return;
@@ -236,17 +237,12 @@ export class Orchestrator {
     const resp = await this.client.messages.create({
       model: MODEL_IDS[model],
       max_tokens: 1200,
-      system: [
-        {
-          type: "text",
-          text:
-            SPEC_SYSTEM_PROMPT +
-            "\n\n" +
-            SHARED_POLICY_BLOCK +
-            "\n\nYou are updating an existing spec. Return the FULL updated RobotSpec JSON, not a diff.",
-          cache_control: { type: "ephemeral" },
-        },
-      ],
+      system: sysBlock(
+        SPEC_SYSTEM_PROMPT +
+          "\n\n" +
+          SHARED_POLICY_BLOCK +
+          "\n\nYou are updating an existing spec. Return the FULL updated RobotSpec JSON, not a diff.",
+      ),
       messages: [
         {
           role: "user",
@@ -264,13 +260,13 @@ export class Orchestrator {
       emit({ type: "step_complete", label: "Spec updated" });
       emit({
         type: "delta",
-        text: "Updated the build ó viewport and BOM are refreshing now.",
+        text: "Updated the build ù viewport and BOM are refreshing now.",
       });
       emit({ type: "done" });
     } else {
       emit({
         type: "delta",
-        text: "I couldn't parse that change cleanly. Can you say which subsystem to change ó chassis, sensors, power, firmware?",
+        text: "I couldn't parse that change cleanly. Can you say which subsystem to change ù chassis, sensors, power, firmware?",
       });
       emit({ type: "done" });
     }
@@ -298,13 +294,7 @@ export class Orchestrator {
     const stream = this.client.messages.stream({
       model: MODEL_IDS[model],
       max_tokens: 800,
-      system: [
-        {
-          type: "text",
-          text: QA_SYSTEM_PROMPT + "\n\n" + SHARED_POLICY_BLOCK,
-          cache_control: { type: "ephemeral" },
-        },
-      ],
+      system: sysBlock(QA_SYSTEM_PROMPT + "\n\n" + SHARED_POLICY_BLOCK),
       messages: [
         ...conversation
           .slice(-5)

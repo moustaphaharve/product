@@ -19,6 +19,7 @@ import type { EnvironmentType } from "@product/types";
 import { EnvironmentPicker } from "./EnvironmentPicker";
 import { PostFX } from "./viewport/PostFX";
 import { PBRFloor } from "./viewport/PBRFloor";
+import { RobotModel } from "./viewport/RobotModel";
 import {
   detectQuality,
   QUALITY,
@@ -834,15 +835,18 @@ function RobotPlaceholder({
     }
   });
 
+  const fallback =
+    category === "mobile_aerial" ? (
+      <DroneMesh />
+    ) : category === "manipulator_arm" ? (
+      <ArmMesh />
+    ) : (
+      <WheeledMesh />
+    );
+
   return (
     <group ref={ref} position={[0, 0.2, 0]}>
-      {category === "mobile_aerial" ? (
-        <DroneMesh />
-      ) : category === "manipulator_arm" ? (
-        <ArmMesh />
-      ) : (
-        <WheeledMesh />
-      )}
+      <RobotModel category={category} fallback={fallback} />
     </group>
   );
 }

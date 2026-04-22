@@ -1,7 +1,12 @@
 import { motion } from "framer-motion";
-import { Bot, Github, Mail } from "lucide-react";
+import { Bot } from "lucide-react";
 import { Button } from "@product/ui";
+import { SignInButton, SignUpButton } from "@clerk/clerk-react";
 import { useAppStore } from "../store/app";
+
+const CLERK_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as
+  | string
+  | undefined;
 
 export function WelcomeView() {
   const setStage = useAppStore((s) => s.setStage);
@@ -28,33 +33,45 @@ export function WelcomeView() {
         </div>
 
         <div className="w-full flex flex-col gap-2 mt-2">
-          <Button
-            variant="primary"
-            size="lg"
-            className="w-full justify-center"
-            onClick={() => setStage("onboarding")}
-          >
-            <Mail size={14} />
-            Continue with email
-          </Button>
-          <Button
-            variant="secondary"
-            size="lg"
-            className="w-full justify-center"
-            onClick={() => setStage("onboarding")}
-          >
-            <Github size={14} />
-            Continue with GitHub
-          </Button>
-          <Button
-            variant="secondary"
-            size="lg"
-            className="w-full justify-center"
-            onClick={() => setStage("onboarding")}
-          >
-            <GoogleMark />
-            Continue with Google
-          </Button>
+          {CLERK_KEY ? (
+            <>
+              <SignInButton
+                mode="modal"
+                forceRedirectUrl="/"
+                signUpForceRedirectUrl="/"
+              >
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="w-full justify-center"
+                >
+                  Sign in
+                </Button>
+              </SignInButton>
+              <SignUpButton
+                mode="modal"
+                forceRedirectUrl="/"
+                signInForceRedirectUrl="/"
+              >
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="w-full justify-center"
+                >
+                  Create account
+                </Button>
+              </SignUpButton>
+            </>
+          ) : (
+            <Button
+              variant="primary"
+              size="lg"
+              className="w-full justify-center"
+              onClick={() => setStage("onboarding")}
+            >
+              Continue
+            </Button>
+          )}
         </div>
 
         <div className="text-[11px] text-text-tertiary text-center">
@@ -69,28 +86,5 @@ export function WelcomeView() {
         </button>
       </motion.div>
     </div>
-  );
-}
-
-function GoogleMark() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 18 18" aria-hidden="true">
-      <path
-        fill="#FFC107"
-        d="M17.64 9.2c0-.64-.06-1.25-.17-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.88 2.69-6.64z"
-      />
-      <path
-        fill="#4CAF50"
-        d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.27c-.8.54-1.83.86-3.05.86-2.35 0-4.34-1.59-5.05-3.72H.92v2.34A9 9 0 0 0 9 18z"
-      />
-      <path
-        fill="#1976D2"
-        d="M3.95 10.69A5.4 5.4 0 0 1 3.68 9c0-.59.1-1.16.27-1.69V4.97H.92A9 9 0 0 0 0 9c0 1.45.35 2.82.92 4.03l3.03-2.34z"
-      />
-      <path
-        fill="#E53935"
-        d="M9 3.58c1.32 0 2.5.45 3.44 1.34l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .92 4.97l3.03 2.34C4.66 5.17 6.65 3.58 9 3.58z"
-      />
-    </svg>
   );
 }

@@ -54,13 +54,14 @@ body,
 body {
   background: rgb(var(--bg-primary));
   color: rgb(var(--text-primary));
-  font-family: "Inter", -apple-system, system-ui, sans-serif;
+  font-family: "Geist", "Inter", -apple-system, system-ui, sans-serif;
   font-size: 13px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   user-select: none;
+  font-feature-settings: "cv11" on, "ss01" on;
 }
 
 input,
@@ -96,7 +97,7 @@ textarea,
 }
 
 .font-mono {
-  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  font-family: "Geist Mono", "JetBrains Mono", "SF Mono", Menlo, monospace;
 }
 
 button,
