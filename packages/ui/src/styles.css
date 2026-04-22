@@ -14,7 +14,9 @@
   --text-secondary: 255 255 255;
   --text-tertiary: 255 255 255;
   --accent-primary: 255 255 255;
-  --accent-subtle: 255 255 255;
+  /* Pre-baked translucent hover / active tints. */
+  --accent-subtle-color: rgba(255, 255, 255, 0.06);
+  --accent-strong-color: rgba(255, 255, 255, 0.1);
   --viewport-bg: 5 5 5;
   --viewport-grid: 255 255 255;
 }
@@ -31,7 +33,8 @@
   --text-secondary: 0 0 0;
   --text-tertiary: 0 0 0;
   --accent-primary: 10 10 10;
-  --accent-subtle: 0 0 0;
+  --accent-subtle-color: rgba(0, 0, 0, 0.05);
+  --accent-strong-color: rgba(0, 0, 0, 0.08);
   --viewport-bg: 243 243 243;
   --viewport-grid: 0 0 0;
 }

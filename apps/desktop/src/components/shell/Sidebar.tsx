@@ -77,7 +77,10 @@ export function Sidebar() {
   });
 
   useEffect(() => {
-    const close = () => setContextMenu(null);
+    const close = () => {
+      setContextMenu(null);
+      setMenuOpen(false);
+    };
     window.addEventListener("click", close);
     return () => window.removeEventListener("click", close);
   }, []);
@@ -89,7 +92,7 @@ export function Sidebar() {
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       className="relative h-full bg-bg-secondary border-r border-border-primary/50 flex flex-col shrink-0"
     >
-      {/* Top ù logo + new + search */}
+      {/* Top ? logo + new + search */}
       <div className="p-3 flex flex-col gap-2 border-b border-border-primary/50">
         <div
           className={cn(
@@ -159,13 +162,13 @@ export function Sidebar() {
             className="w-full h-8 px-2.5 rounded-md bg-bg-input border border-border-primary/50 flex items-center gap-2 text-text-tertiary hover:text-text-secondary hover:border-border-secondary/60 transition-colors duration-micro"
           >
             <Search size={13} />
-            <span className="text-sm flex-1 text-left">Searchù</span>
+            <span className="text-sm flex-1 text-left">Search?</span>
             <kbd className="text-xs text-text-tertiary font-mono">?K</kbd>
           </button>
         )}
       </div>
 
-      {/* Middle ù Recent projects */}
+      {/* Middle ? Recent projects */}
       <div className="flex-1 overflow-y-auto py-2">
         {!collapsed && (
           <div className="px-3 pt-1 pb-2 text-xs uppercase tracking-wider text-text-tertiary font-medium">
@@ -175,7 +178,7 @@ export function Sidebar() {
         <div className="flex flex-col gap-0.5 px-2">
           {projectsQuery.isLoading && (
             <div className="px-2 py-1 text-xs text-text-tertiary">
-              {collapsed ? "" : "Loadingù"}
+              {collapsed ? "" : "Loading?"}
             </div>
           )}
           {(projectsQuery.data ?? [])
@@ -241,16 +244,20 @@ export function Sidebar() {
         )}
       </div>
 
-      {/* Bottom ù user avatar / account menu */}
+      {/* Bottom ? user avatar / account menu */}
       <div className="p-2 border-t border-border-primary/50 relative">
         <button
-          onClick={() => setMenuOpen((v) => !v)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setMenuOpen((v) => !v);
+          }}
           className={cn(
-            "w-full rounded-md px-2 py-1.5 flex items-center gap-2 hover:bg-accent-subtle transition-colors duration-micro",
-            collapsed && "justify-center px-0",
+            "w-full rounded-md flex items-center gap-2 hover:bg-accent-subtle transition-colors duration-micro",
+            collapsed ? "justify-center p-0 h-9" : "px-2 py-1.5",
           )}
+          aria-label="Account menu"
         >
-          <div className="h-7 w-7 rounded-full bg-gradient-to-br from-neutral-300 to-neutral-600 flex items-center justify-center text-[11px] font-medium text-black">
+          <div className="h-7 w-7 rounded-full bg-gradient-to-br from-neutral-300 to-neutral-600 flex items-center justify-center text-[11px] font-medium text-black shrink-0">
             Y
           </div>
           {!collapsed && (
@@ -274,7 +281,10 @@ export function Sidebar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
               transition={{ duration: 0.15 }}
-              className="absolute bottom-14 left-2 right-2 bg-bg-tertiary border border-border-primary/60 rounded-lg shadow-xl p-1 z-40"
+              className={cn(
+                "absolute bottom-14 bg-bg-tertiary border border-border-primary/60 rounded-lg shadow-xl p-1 z-40 min-w-[200px]",
+                collapsed ? "left-[56px] ml-2" : "left-2 right-2",
+              )}
             >
               <MenuItem
                 icon={<Settings size={13} />}
@@ -312,15 +322,14 @@ export function Sidebar() {
       </div>
 
       {collapsed && (
-        <Tooltip content="Expand sidebar" side="right">
-          <button
-            onClick={toggleSidebar}
-            className="absolute top-2 right-[-12px] h-6 w-6 rounded-full bg-bg-tertiary border border-border-primary/60 flex items-center justify-center text-text-tertiary hover:text-text-primary transition-colors duration-micro shadow-md"
-            aria-label="Expand sidebar"
-          >
-            <PanelLeftOpen size={12} />
-          </button>
-        </Tooltip>
+        <button
+          onClick={toggleSidebar}
+          aria-label="Expand sidebar"
+          title="Expand sidebar"
+          className="absolute top-1/2 -translate-y-1/2 -right-3 h-8 w-6 rounded-full bg-bg-tertiary border border-border-primary/70 flex items-center justify-center text-text-tertiary hover:text-text-primary hover:border-border-secondary transition-colors duration-micro shadow-lg z-30"
+        >
+          <PanelLeftOpen size={12} />
+        </button>
       )}
 
       {/* Context menu for project items */}
@@ -404,7 +413,7 @@ function ProjectItem({
       }}
       className={cn(
         "group w-full flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent-subtle transition-colors duration-micro",
-        active && "bg-accent-subtle",
+        active && "bg-accent-strong",
         collapsed && "justify-center",
       )}
     >

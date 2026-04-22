@@ -57,7 +57,7 @@ export function ComponentsSection() {
                 onClick={() => toggleSupplier(n)}
                 className={`px-2.5 h-7 rounded-md border text-xs transition-colors duration-micro ${
                   active
-                    ? "bg-accent-subtle border-border-secondary text-text-primary"
+                    ? "bg-accent-strong border-border-secondary text-text-primary"
                     : "bg-bg-input border-border-primary/60 text-text-secondary hover:text-text-primary"
                 }`}
               >

@@ -7,6 +7,9 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    // Listen on all interfaces so http://127.0.0.1:5173/ works as well as localhost
+    host: true,
+    open: true,
   },
   resolve: {
     alias: {

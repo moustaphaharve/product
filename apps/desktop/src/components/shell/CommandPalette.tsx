@@ -188,7 +188,7 @@ function PaletteItem({
   return (
     <Command.Item
       onSelect={onSelect}
-      className="group flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm text-text-secondary data-[selected='true']:bg-accent-subtle data-[selected='true']:text-text-primary cursor-pointer"
+      className="group flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm text-text-secondary data-[selected='true']:bg-accent-strong data-[selected='true']:text-text-primary cursor-pointer"
     >
       <span className="text-text-tertiary group-data-[selected='true']:text-text-primary">
         {icon}

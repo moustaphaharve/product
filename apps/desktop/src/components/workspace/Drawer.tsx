@@ -94,7 +94,7 @@ function TabButton({
       className={cn(
         "h-8 px-3 rounded-md text-sm inline-flex items-center gap-1.5 transition-colors duration-micro",
         active
-          ? "bg-accent-subtle text-text-primary"
+          ? "bg-accent-strong text-text-primary"
           : "text-text-secondary hover:text-text-primary hover:bg-accent-subtle",
       )}
     >
@@ -157,7 +157,7 @@ function ComponentsTab({ projectId }: { projectId: string }) {
               </div>
               <div className="flex items-center justify-between">
                 <div className="text-sm text-text-primary font-mono">
-                  {cheapest ? `$${cheapest.priceUsd.toFixed(2)}` : "ó"}
+                  {cheapest ? `$${cheapest.priceUsd.toFixed(2)}` : "ù"}
                 </div>
                 {cheapest && (
                   <a
@@ -187,7 +187,7 @@ function FirmwareTab({ projectId }: { projectId: string }) {
     <div className="h-full flex flex-col">
       <div className="px-4 py-2 text-xs text-text-tertiary border-b border-border-primary/40 flex items-center justify-between">
         <span>firmware/main.{codeExtFor(project?.robotSpec?.category)}</span>
-        <span>Auto-generated ∑ read-only in this view</span>
+        <span>Auto-generated ù read-only in this view</span>
       </div>
       <pre className="flex-1 overflow-auto p-4 text-[12.5px] leading-[1.55] font-mono text-text-primary whitespace-pre">
         {code}
@@ -198,13 +198,17 @@ function FirmwareTab({ projectId }: { projectId: string }) {
 
 function WiringTab({ projectId: _p }: { projectId: string }) {
   return (
-    <div className="p-6 flex flex-col items-center justify-center h-full gap-3 text-text-secondary">
-      <Cable size={24} className="text-text-tertiary" />
-      <div className="text-sm">Wiring diagram preview</div>
-      <div className="text-xs text-text-tertiary max-w-sm text-center">
-        We'll render a clean, readable pinout between each component
-        automatically. Generate a robot in the conversation to populate this
-        view.
+    <div className="p-6 h-full flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-text-secondary">Wiring diagram</div>
+        <div className="text-xs text-text-tertiary">Auto-generated from BOM</div>
+      </div>
+      <div className="flex-1 rounded-lg border border-border-primary/50 bg-bg-tertiary/30 relative overflow-hidden">
+        <WiringSchematic />
+      </div>
+      <div className="text-xs text-text-tertiary max-w-xl">
+        Net list is inferred from the selected components. Regenerate the build
+        to refresh.
       </div>
     </div>
   );
@@ -243,6 +247,92 @@ function BuildTab({ projectId }: { projectId: string }) {
   );
 }
 
+function WiringSchematic() {
+  const nodes = [
+    { x: 120, y: 90, label: "Battery 11.1V", pin: "+/-" },
+    { x: 120, y: 200, label: "PDB 20A", pin: "" },
+    { x: 320, y: 90, label: "Controller", pin: "5V / GND" },
+    { x: 320, y: 200, label: "Motor Driver", pin: "IN1..IN4" },
+    { x: 520, y: 90, label: "Lidar", pin: "USB" },
+    { x: 520, y: 200, label: "Motors ù2", pin: "PWM" },
+    { x: 520, y: 310, label: "IMU", pin: "IùC" },
+    { x: 320, y: 310, label: "Camera", pin: "CSI" },
+  ];
+  const edges: Array<[number, number]> = [
+    [0, 1],
+    [1, 2],
+    [1, 3],
+    [2, 4],
+    [3, 5],
+    [2, 7],
+    [2, 6],
+  ];
+  return (
+    <svg
+      viewBox="0 0 640 400"
+      className="w-full h-full"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <defs>
+        <pattern id="wiringGrid" width="24" height="24" patternUnits="userSpaceOnUse">
+          <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+        </pattern>
+        <linearGradient id="wiringEdge" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.45)" />
+          <stop offset="100%" stopColor="rgba(255,255,255,0.15)" />
+        </linearGradient>
+      </defs>
+      <rect width="640" height="400" fill="url(#wiringGrid)" />
+      {edges.map(([a, b], i) => {
+        const A = nodes[a]!;
+        const B = nodes[b]!;
+        const midX = (A.x + B.x) / 2;
+        const d = `M ${A.x} ${A.y} C ${midX} ${A.y}, ${midX} ${B.y}, ${B.x} ${B.y}`;
+        return (
+          <path
+            key={i}
+            d={d}
+            stroke="url(#wiringEdge)"
+            strokeWidth={1.25}
+            fill="none"
+          />
+        );
+      })}
+      {nodes.map((n, i) => (
+        <g key={i} transform={`translate(${n.x - 60} ${n.y - 18})`}>
+          <rect
+            width={120}
+            height={36}
+            rx={6}
+            fill="rgba(20,20,22,0.95)"
+            stroke="rgba(255,255,255,0.12)"
+          />
+          <text
+            x={60}
+            y={15}
+            textAnchor="middle"
+            fill="rgba(250,250,250,0.95)"
+            fontSize={11}
+            fontFamily="Inter, sans-serif"
+          >
+            {n.label}
+          </text>
+          <text
+            x={60}
+            y={28}
+            textAnchor="middle"
+            fill="rgba(255,255,255,0.4)"
+            fontSize={9}
+            fontFamily="JetBrains Mono, monospace"
+          >
+            {n.pin}
+          </text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 function codeExtFor(category?: string) {
   if (!category) return "ino";
   if (category.includes("arm") || category.includes("humanoid")) return "py";
@@ -251,7 +341,7 @@ function codeExtFor(category?: string) {
 
 function sampleFirmware(category?: string) {
   if (category === "manipulator_arm") {
-    return `# firmware/main.py ó Product-generated manipulator firmware
+    return `# firmware/main.py ù Product-generated manipulator firmware
 import time
 from adafruit_servokit import ServoKit
 
@@ -275,7 +365,7 @@ if __name__ == "__main__":
         time.sleep(1.5)
 `;
   }
-  return `// firmware/main.ino ó Product-generated rover firmware
+  return `// firmware/main.ino ù Product-generated rover firmware
 #include <Arduino.h>
 
 constexpr uint8_t LEFT_MOTOR_IN1 = 5;

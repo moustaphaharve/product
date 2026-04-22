@@ -84,7 +84,7 @@ export function OnboardingView() {
                         className={cn(
                           "px-3 h-8 rounded-md border text-sm transition-colors duration-micro",
                           active
-                            ? "bg-accent-subtle border-border-secondary text-text-primary"
+                            ? "bg-accent-strong border-border-secondary text-text-primary"
                             : "bg-bg-secondary border-border-primary/60 text-text-secondary hover:text-text-primary",
                         )}
                       >
@@ -123,7 +123,7 @@ export function OnboardingView() {
                         className={cn(
                           "w-full rounded-lg border px-3 py-2.5 text-left transition-colors duration-micro",
                           active
-                            ? "bg-accent-subtle border-border-secondary"
+                            ? "bg-accent-strong border-border-secondary"
                             : "bg-bg-secondary border-border-primary/60 hover:border-border-secondary",
                         )}
                       >
@@ -155,7 +155,7 @@ export function OnboardingView() {
               >
                 <div className="text-sm text-text-secondary">
                   We'll take you to the home screen. Type a prompt or pick a
-                  template ó your first project will auto-save as you iterate.
+                  template ù your first project will auto-save as you iterate.
                 </div>
               </StepShell>
             </motion.div>

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Sidebar } from "./components/shell/Sidebar";
 import { HomeView } from "./views/HomeView";
@@ -52,13 +52,14 @@ function ShellLayout() {
 }
 
 function AnimatedRoutes() {
+  const location = useLocation();
   return (
     <AnimatePresence mode="wait" initial={false}>
-      <Routes>
+      <Routes location={location} key={location.pathname}>
         <Route
           path="/"
           element={
-            <ViewFade keyName="home">
+            <ViewFade routeKey="home">
               <HomeView />
             </ViewFade>
           }
@@ -66,7 +67,7 @@ function AnimatedRoutes() {
         <Route
           path="/projects/:id"
           element={
-            <ViewFade keyName="workspace">
+            <ViewFade routeKey="workspace">
               <WorkspaceView />
             </ViewFade>
           }
@@ -74,7 +75,7 @@ function AnimatedRoutes() {
         <Route
           path="/settings/*"
           element={
-            <ViewFade keyName="settings">
+            <ViewFade routeKey="settings">
               <SettingsView />
             </ViewFade>
           }
@@ -85,15 +86,15 @@ function AnimatedRoutes() {
 }
 
 function ViewFade({
-  keyName,
+  routeKey,
   children,
 }: {
-  keyName: string;
+  routeKey: string;
   children: React.ReactNode;
 }) {
   return (
     <motion.div
-      key={keyName}
+      key={routeKey}
       className="absolute inset-0"
       initial={{ opacity: 0, scale: 0.995 }}
       animate={{ opacity: 1, scale: 1 }}

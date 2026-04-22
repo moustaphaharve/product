@@ -23,7 +23,11 @@ module.exports = {
         },
         accent: {
           DEFAULT: "rgb(var(--accent-primary) / <alpha-value>)",
-          subtle: "rgb(var(--accent-subtle) / <alpha-value>)",
+          // `subtle` and `strong` use CSS custom properties with baked-in
+          // alpha so `bg-accent-subtle` (no /N) stays a translucent hover tint
+          // instead of collapsing to full opacity.
+          subtle: "var(--accent-subtle-color)",
+          strong: "var(--accent-strong-color)",
         },
         semantic: {
           success: "#10B981",

@@ -10,18 +10,18 @@ export class ErrorBoundary extends React.Component<
   React.PropsWithChildren,
   State
 > {
-  state: State = { hasError: false };
+  override state: State = { hasError: false };
 
   static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, info: React.ErrorInfo) {
+  override componentDidCatch(error: Error, info: React.ErrorInfo) {
     // eslint-disable-next-line no-console
     console.error("ErrorBoundary caught", error, info);
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       return (
         <div className="h-full w-full flex items-center justify-center bg-bg-primary">

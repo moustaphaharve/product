@@ -69,7 +69,7 @@ export function SettingsView() {
                 className={cn(
                   "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors duration-micro",
                   isActive
-                    ? "bg-accent-subtle text-text-primary"
+                    ? "bg-accent-strong text-text-primary"
                     : "text-text-secondary hover:text-text-primary hover:bg-accent-subtle",
                 )}
               >
