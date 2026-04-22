@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  projects Project[]
+  settings UserSettings?
+  credits  UserCredits?
+  events   AnalyticsEvent[]
+  aiCalls  AICall[]
+}
+
+model Project {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  name         String
+  description  String    @default("")
+  thumbnailUrl String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  archivedAt   DateTime?
+  starred      Boolean   @default(false)
+  tags         String[]
+
+  // Current state (serialized snapshot of the full workspace)
+  state Json
+
+  messages Message[]
+  versions ProjectVersion[]
+  aiCalls  AICall[]
+
+  @@index([userId, updatedAt])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  role      String
+  content   String   @db.Text
+  activity  Json?
+  artifacts Json?
+  createdAt DateTime @default(now())
+
+  @@index([projectId, createdAt])
+}
+
+model ProjectVersion {
+  id           String   @id @default(cuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  label        String
+  snapshotType String
+  state        Json
+  createdAt    DateTime @default(now())
+
+  @@index([projectId, createdAt])
+}
+
+model UserSettings {
+  userId               String   @id
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme                String   @default("dark")
+  language             String   @default("en")
+  aiPreference         String   @default("auto")
+  simulationFidelity   String   @default("balanced")
+  defaultEnvironment   String   @default("empty")
+  preferredSuppliers   String[]
+  region               String   @default("US")
+  telemetryOptIn       Boolean  @default(true)
+  privacyMode          Boolean  @default(false)
+  customShortcuts      Json?
+  experimentalFeatures String[]
+}
+
+model UserCredits {
+  userId                String   @id
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId                String   @default("free")
+  creditsIncluded       Int      @default(30)
+  creditsUsedThisPeriod Int      @default(0)
+  periodStart           DateTime @default(now())
+  periodEnd             DateTime
+  overageCreditsUsed    Int      @default(0)
+  overageChargesUsd     Float    @default(0)
+}
+
+model AICall {
+  id           String   @id @default(cuid())
+  projectId    String?
+  project      Project? @relation(fields: [projectId], references: [id])
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  model        String
+  inputTokens  Int
+  outputTokens Int
+  cachedTokens Int      @default(0)
+  latencyMs    Int
+  costUsd      Float
+  purpose      String
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([projectId, createdAt])
+}
+
+model Component {
+  id            String     @id @default(cuid())
+  slug          String     @unique
+  name          String
+  manufacturer  String
+  category      Category
+  subcategory   String?
+  description   String
+  specs         Json
+  compatibility Json
+  suppliers     Supplier[]
+  alternativeIds String[]
+  imageUrl      String?
+  datasheetUrl  String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([category])
+}
+
+model Supplier {
+  id            String    @id @default(cuid())
+  componentId   String
+  component     Component @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  name          String
+  priceUsd      Float
+  inStock       Boolean
+  leadTimeDays  Int
+  purchaseUrl   String
+  affiliateUrl  String?
+  lastChecked   DateTime
+
+  @@index([componentId])
+}
+
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventType  String
+  properties Json
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([eventType])
+}
+
+enum Category {
+  MOTOR
+  MICROCONTROLLER
+  SENSOR
+  CHASSIS
+  WHEEL
+  BATTERY
+  ARM
+  GRIPPER
+  CABLE
+  CONNECTOR
+  MISC
+}
