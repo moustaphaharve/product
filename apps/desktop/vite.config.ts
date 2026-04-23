@@ -19,5 +19,24 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: true,
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        // Split the heaviest vendor groups into their own chunks so the
+        // initial shell stays small. Anything not explicitly grouped lands
+        // in the default "index" chunk (no circular refs).
+        manualChunks: {
+          three: [
+            "three",
+            "@react-three/fiber",
+            "@react-three/drei",
+            "@react-three/postprocessing",
+            "postprocessing",
+          ],
+          clerk: ["@clerk/clerk-react"],
+          framer: ["framer-motion"],
+        },
+      },
+    },
   },
 });

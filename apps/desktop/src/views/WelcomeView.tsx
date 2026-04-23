@@ -3,6 +3,7 @@ import { Bot } from "lucide-react";
 import { Button } from "@product/ui";
 import { SignInButton, SignUpButton } from "@clerk/clerk-react";
 import { useAppStore } from "../store/app";
+import { WelcomeBackdrop } from "../components/shell/WelcomeBackdrop";
 
 const CLERK_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as
   | string
@@ -13,7 +14,7 @@ export function WelcomeView() {
 
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-bg-primary overflow-hidden relative">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.03),transparent_60%)]" />
+      <WelcomeBackdrop />
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
